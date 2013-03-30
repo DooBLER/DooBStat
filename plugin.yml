@@ -1,3 +1,41 @@
 name: DooBStat
 main: net.doobler.doobstat.DooBStat
 version: 0.1
+commands:
+  dstat:
+    description: All basic commands.
+    usage: |
+           Usage:
+           /<command> - Display help
+           /<command> clean - Clean all records older than the number of days stored in config.
+    permission: dstat.dstat
+    permission-message: You don't have <permission>
+permissions:
+  dstat.*:
+    default: op
+    description: "Implies all DooBStat permissions."
+    children:
+      dstat.all: true
+  dstat.all:
+    default: false
+    description: "Implies all DooBStat permissions."
+    children:
+      dstat.dstat.all: true
+  dstat.dstat.*:
+    default: false
+    description: "[/dstat] command and subcommands."
+    children:
+      dstat.dstat.all: true
+  dstat.dstat.all:
+    default: false
+    description: "[/dstat] command and subcommands."
+    children:
+      dstat.dstat: true
+      dstat.dstat.clean: true
+  dstat.dstat:
+    default: false
+    description: "[/dstat] base command."
+  dstat.dstat.clean:
+    default: false
+    description: "[/dstat clean] command."
+    

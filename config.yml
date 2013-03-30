@@ -5,4 +5,7 @@ mysql:
   user: ""
   pass: ""
   prefix: "dstat_"
+clean:
+  days: 180
+  auto: false
 version: "0.1"

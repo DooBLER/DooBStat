@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,6 +132,39 @@ public class DooBStatDAO extends MySQL {
 				"last_logout = ?," +
 				"num_secs_loggedon = num_secs_loggedon + ? " +
 				"WHERE id = ?");
+	}
+	
+	
+	/**
+	 * Funkcja do czyszczenia starych wpisów
+	 * 
+	 * Funkcja czyści wpisy starcze niż liczba dni zdefiniowana w konfiguracji
+	 * 
+	 * @return int - liczba usuniętych wpisów
+	 */
+	public int cleanDB() {
+		Date curdate = new Date();
+		Timestamp olderthan = new Timestamp(curdate.getTime() - 
+				(this.plugin.getConfig().getInt("clean.days")*24*3600*(long)1000));
+		
+		Connection conn = this.getConn();
+		
+		String sql = "DELETE FROM " + this.getPrefixed("players") + " " +
+				"WHERE this_login < ?";
+		
+		int deletedrows = 0;
+		
+		try {
+			PreparedStatement prest = conn.prepareStatement(sql);
+			prest.setTimestamp(1, olderthan);
+			deletedrows = prest.executeUpdate();
+			prest.close();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return deletedrows;
 	}
 	
 	

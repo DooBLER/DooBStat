@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.doobler.doobstat.commands.DooBStatDstatCommand;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,9 +19,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class DooBStat extends JavaPlugin {
 	
 	// obiekt połączenia z bazą.
-	DooBStatDAO db = null;
+	public DooBStatDAO db = null;
 	// Lista obiektów obecnych na serwerze graczy.
-	Map<String, DooBStatPlayerData> playerslist = new HashMap<String, DooBStatPlayerData>();
+	public Map<String, DooBStatPlayerData> playerslist = new HashMap<String, DooBStatPlayerData>();
 	
 	public final DooBStatPlayerListener playerListener = new DooBStatPlayerListener(this);
 	
@@ -37,7 +39,7 @@ public final class DooBStat extends JavaPlugin {
 		this.saveDefaultConfig();
 		
 		// nawiązanie połączenia z bazą
-		db = new DooBStatDAO(this,
+		this.db = new DooBStatDAO(this,
 				 this.getConfig().getString("mysql.host"),
 				 this.getConfig().getString("mysql.port"),
 				 this.getConfig().getString("mysql.dbname"),
@@ -50,6 +52,17 @@ public final class DooBStat extends JavaPlugin {
 		
 		// rejestracja ewentów
 		pm.registerEvents(this.playerListener, this);
+		
+		// rejestracja komend
+		getCommand("dstat").setExecutor(new DooBStatDstatCommand(this));
+		
+		if(this.getConfig().getBoolean("clean.auto")) {
+			int rows = this.db.cleanDB();
+			if(rows > 0) {
+        		this.getLogger().info(rows +
+        				" old entries deleted.");
+        	}
+		}
 		
 		// jeśli był zrobiony reload serwera to znaczy, że są jacyś gracze
 		// i trzeba ich dodać do pluginu...
@@ -79,7 +92,7 @@ public final class DooBStat extends JavaPlugin {
 	        							   new DooBStatPlayerData(res.getInt("id"), 
 	        									   	              res.getString("player_name"),
 	        									   	              curdate));
-				} // elsem się nie przejmujemy bo tutaj powinni być tylko gracze,
+				} // else się nie przejmujemy bo tutaj powinni być tylko gracze,
 				// którzy już wcześniej byli na serwerze...
 			} catch (SQLException e1) {
 				e1.printStackTrace();
