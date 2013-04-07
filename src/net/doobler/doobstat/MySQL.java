@@ -11,6 +11,10 @@ public class MySQL {
 	
 	// Jak długo czekać podczas sprawdzania czy połączenie jest poprawne (default 2 sec)
     private static final int VALID_TIMEOUT = 2;
+    
+    // Minimalny czas co jaki sprawdzane jest połączenie (w sekundach).
+    private static final int MIN_CHECK_TIME = 5;
+    private long lastcheck = 0;
 	
     // Zmienna przechowuje referencję do głównego obiektu pluginu.
 	protected DooBStat plugin;
@@ -146,9 +150,12 @@ public class MySQL {
      */
     public Connection getConn() {
     	
+    	long timer = 0;
+    	
     	// DEBUG
-    	// TODO: dodać ify - jeśli w konfigu ustawione na debug...
-    	long timer = System.nanoTime();
+    	if(this.plugin.getConfig().getBoolean("debug")) {
+    		timer = System.nanoTime();
+    	}
     	
     	boolean isClosed = true;
         boolean isValid = false;
@@ -156,6 +163,18 @@ public class MySQL {
         
         
         if (exists) {
+        	
+        	if (this.lastcheck+(MIN_CHECK_TIME*1000) > System.currentTimeMillis()) {
+        		// DEBUG
+        		if(this.plugin.getConfig().getBoolean("debug")) {
+        			this.plugin.getLogger().info("debug: Time getConn: " + (System.nanoTime() - timer) + "ns");
+        		}
+        		return this.c;
+        	} else {
+        		this.lastcheck = System.currentTimeMillis();
+        	}
+        	
+        	
             try {
                 isClosed = this.c.isClosed();
             }
@@ -180,8 +199,9 @@ public class MySQL {
         if (exists && !isClosed && isValid) {
         	
         	// DEBUG
-        	// TODO: dodać ify - jeśli w konfigu ustawione na debug...
-        	this.plugin.getLogger().info("Czas getConn: " + (System.nanoTime() - timer) + "ns");
+    		if(this.plugin.getConfig().getBoolean("debug")) {
+    			this.plugin.getLogger().info("debug: Time getConn: " + (System.nanoTime() - timer) + "ns");
+    		}
         	
             return this.c;
         }
@@ -200,8 +220,9 @@ public class MySQL {
      	this.open();
      	
      	// DEBUG
-    	// TODO: dodać ify - jeśli w konfigu ustawione na debug...
-     	this.plugin.getLogger().info("Czas getConn: " + (System.nanoTime() - timer) + "ns");
+		if(this.plugin.getConfig().getBoolean("debug")) {
+			this.plugin.getLogger().info("debug: Time getConn: " + (System.nanoTime() - timer) + "ns");
+		}
         
         return this.c; 
     } 

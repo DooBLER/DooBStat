@@ -8,4 +8,5 @@ mysql:
 clean:
   days: 180
   auto: false
+debug: false
 version: "0.1"

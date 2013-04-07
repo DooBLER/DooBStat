@@ -15,7 +15,7 @@ $db["prefix"] = "dstat_";
 
 header('Content-Type: text/html; charset=utf-8');
 
-// ustawienie strefy czasowej
+// set timezone for php
 date_default_timezone_set('Europe/Warsaw');
 
 

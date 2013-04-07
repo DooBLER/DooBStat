@@ -106,8 +106,8 @@ public class DooBStatPlayerListener implements Listener {
 		
 		
 
-		event.getPlayer().sendMessage("Czesc " + event.getPlayer().getName() +
-				", DooBStat test: " + plugin.getConfig().getString("version"));
+		//event.getPlayer().sendMessage("Czesc " + event.getPlayer().getName() +
+		//		", DooBStat test: " + plugin.getConfig().getString("version"));
 	}
 	
 	
