@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.doobler.doobstat.commands.DooBStatDstatCommand;
+import net.doobler.doobstat.updatechecker.UpdateChecker;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -101,7 +102,6 @@ public final class DooBStat extends JavaPlugin {
 			try {
 				res.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -112,6 +112,28 @@ public final class DooBStat extends JavaPlugin {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		
+		long timer = 0;
+		// DEBUG
+    	if(this.getConfig().getBoolean("debug")) {
+    		timer = System.nanoTime();
+    	}
+		
+		// sprawdzenie czy jest dostępna nowsza wersja i wyświetlenie
+		// komunikatu w konsoli
+		UpdateChecker update = new UpdateChecker(this,
+				"http://dev.bukkit.org/server-mods/doobstat/files.rss");
+		if(update.updateNeeded()) {
+			this.getLogger().info("----------------------------------------------------------");
+			this.getLogger().info("A new version is available: "+update.getVersion());
+			this.getLogger().info("Get it from: "+update.getLink());
+			this.getLogger().info("----------------------------------------------------------");
+		}
+		
+		// DEBUG
+		if(this.getConfig().getBoolean("debug")) {
+			this.getLogger().info("debug: Time check update " + (System.nanoTime() - timer) + "ns");
 		}
 	}
 	

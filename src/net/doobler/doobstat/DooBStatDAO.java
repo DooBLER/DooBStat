@@ -187,7 +187,7 @@ public class DooBStatDAO extends MySQL {
 				 "`num_secs_loggedon` int(11) NOT NULL, " +
 				 "PRIMARY KEY (`id`), " +
 				 "UNIQUE KEY `player_name` (`player_name`) " +
-				 ") ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+				 ") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
 		
 		try {
 			Statement statement = conn.createStatement();
