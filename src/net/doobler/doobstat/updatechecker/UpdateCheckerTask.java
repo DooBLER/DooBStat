@@ -1,7 +1,13 @@
 package net.doobler.doobstat.updatechecker;
 
+
+import java.io.DataOutputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -15,15 +21,69 @@ public class UpdateCheckerTask extends BukkitRunnable {
 
 	private final JavaPlugin plugin;
 	private URL filesFeed;
+	private URL pluginStats;
+	private String statParams;
 	private String version;
 	private String link;
 	
-	public UpdateCheckerTask(JavaPlugin plugin) {
+	public UpdateCheckerTask(JavaPlugin plugin, String url) {
 		this.plugin = plugin;
+		
+		try {
+			this.filesFeed = new URL(url);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			this.pluginStats = new URL("http://apps.doobler.net/bukkitplg/");
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			this.statParams = "plgname=" + URLEncoder.encode(plugin.getDescription().getName(), "UTF-8") + 
+					"&plgver=" + URLEncoder.encode(plugin.getDescription().getVersion(), "UTF-8") + 
+					"&srvname=" + URLEncoder.encode(plugin.getServer().getServerName(), "UTF-8") +
+					"&srvip=" + URLEncoder.encode(plugin.getServer().getIp(), "UTF-8") +
+					"&srvport=" + plugin.getServer().getPort();
+		} catch (UnsupportedEncodingException e) {
+			if(this.plugin.getConfig().getBoolean("debug"))
+			{
+				e.printStackTrace();
+			}
+			
+		}
 	}
 	
 	@Override
 	public void run() {
+		
+		try {
+			HttpURLConnection connection = (HttpURLConnection)this.pluginStats.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setUseCaches(false);
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8;");
+			connection.setRequestProperty("Content-Length", Integer.toString(this.statParams.length()));
+			
+			// SEND REQUEST
+			DataOutputStream outStream = new DataOutputStream (connection.getOutputStream());
+			outStream.writeBytes(this.statParams);
+			outStream.flush();
+			outStream.close();
+			
+			connection.getInputStream();
+
+		} catch (Exception e1) {
+			if(this.plugin.getConfig().getBoolean("debug"))
+			{
+				e1.printStackTrace();
+			}
+		}
+		
+		
 		
 		try {
 			InputStream input = this.filesFeed.openConnection().getInputStream();
@@ -37,11 +97,14 @@ public class UpdateCheckerTask extends BukkitRunnable {
 			this.version = children.item(1).getTextContent().replaceAll("[ \na-zA-Z_-]", "");
 			this.link = children.item(3).getTextContent();
 			
-			if(!this.plugin.getDescription().getVersion().equals(this.version)) {
-				plugin.getLogger().info("----====#### Jest nowa wersja. ####====----");
-			}
+			
+			new UpdateInfoTask(this.plugin, this.version, this.link).runTask(this.plugin);
+			
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(this.plugin.getConfig().getBoolean("debug"))
+			{
+				e.printStackTrace();
+			}
 		}
 		
 	}
