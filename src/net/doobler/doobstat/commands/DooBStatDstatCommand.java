@@ -2,11 +2,11 @@ package net.doobler.doobstat.commands;
 
 
 import net.doobler.doobstat.DooBStat;
+import net.doobler.doobstat.utils.CleanPlayersTask;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 public class DooBStatDstatCommand implements CommandExecutor {
 
@@ -28,18 +28,12 @@ public class DooBStatDstatCommand implements CommandExecutor {
 				return false;
 			}
             if(args[0].equalsIgnoreCase("clean")) {
-            	
-            	int rows = this.plugin.db.cleanDB();
-            	if(rows > 0) {
-            		this.plugin.getLogger().info(rows +
-            				" old entries deleted. (by " + sender.getName() + ")");
+            	if(!CleanPlayersTask.is_working) {
+            		new CleanPlayersTask(this.plugin).runTask(this.plugin);
+            	} else {
+            		this.plugin.getLogger().info("Cleaning is in progress." +
+            				"You cannot start this command now.");
             	}
-            	
-            	if(sender instanceof Player) {
-            		 Player player = (Player) sender;
-            		 player.sendMessage(rows + " old entries deleted.");
-            	}
-            	
             	return true;
             }
         } 

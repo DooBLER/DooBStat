@@ -11,6 +11,7 @@ import java.util.Map;
 
 import net.doobler.doobstat.commands.DooBStatDstatCommand;
 import net.doobler.doobstat.updatechecker.UpdateChecker;
+import net.doobler.doobstat.utils.CleanPlayersTask;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -57,13 +58,15 @@ public final class DooBStat extends JavaPlugin {
 		// rejestracja komend
 		getCommand("dstat").setExecutor(new DooBStatDstatCommand(this));
 		
+		
+		// automatyczne czyszczenie graczy których dawno nie było
 		if(this.getConfig().getBoolean("clean.auto")) {
-			int rows = this.db.cleanDB();
-			if(rows > 0) {
-        		this.getLogger().info(rows +
-        				" old entries deleted.");
-        	}
+			if(!CleanPlayersTask.is_working) {
+				// uruchomienie 10 minut po starcie serwera
+				new CleanPlayersTask(this).runTaskLater(this, (20*60*10));
+			}
 		}
+		
 		
 		// jeśli był zrobiony reload serwera to znaczy, że są jacyś gracze
 		// i trzeba ich dodać do pluginu...
@@ -110,17 +113,17 @@ public final class DooBStat extends JavaPlugin {
 			prest2.executeBatch();
 			prest2.clearBatch();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		
 		// sprawdzenie czy jest dostępna nowsza wersja i wyświetlenie
 		// komunikatu w konsoli
-		
 		if(!this.getConfig().getBoolean("debug")) {
 			// sprawdzaj update tylko gdy wyłączony jest debug
 			new UpdateChecker(this, "http://dev.bukkit.org/server-mods/doobstat/files.rss");
 		}
+		
 	}
 	
 	

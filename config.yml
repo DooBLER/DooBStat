@@ -8,6 +8,7 @@ mysql:
 clean:
   days: 180
   auto: false
+  commands:
+    - "say Player $player_name$ has been removed."
 debug: false
-version: "0.1"
 dbversion: 1

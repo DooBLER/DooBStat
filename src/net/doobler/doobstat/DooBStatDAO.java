@@ -1,12 +1,16 @@
 package net.doobler.doobstat;
 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -136,35 +140,69 @@ public class DooBStatDAO extends MySQL {
 	
 	
 	/**
-	 * Funkcja do czyszczenia starych wpisów
+	 * Zwraca listę nazw graczy do usunięcia z powodu przekroczenia czasu podanego w configu
 	 * 
-	 * Funkcja czyści wpisy starcze niż liczba dni zdefiniowana w konfiguracji
-	 * 
-	 * @return int - liczba usuniętych wpisów
+	 * @return List<String> z nazwami graczy do usunięcia
 	 */
-	public int cleanDB() {
+	public List<String> getCleanNames() {
+		List<String> player_names = new ArrayList<String>();
+		
 		Date curdate = new Date();
 		Timestamp olderthan = new Timestamp(curdate.getTime() - 
 				(this.plugin.getConfig().getInt("clean.days")*24*3600*(long)1000));
 		
 		Connection conn = this.getConn();
 		
-		String sql = "DELETE FROM " + this.getPrefixed("players") + " " +
+		String sql = "SELECT player_name FROM " + this.getPrefixed("players") + " " +
 				"WHERE this_login < ?";
-		
-		int deletedrows = 0;
 		
 		try {
 			PreparedStatement prest = conn.prepareStatement(sql);
 			prest.setTimestamp(1, olderthan);
-			deletedrows = prest.executeUpdate();
+			ResultSet players_set = prest.executeQuery();
+			
+			while(players_set.next()) {
+				player_names.add(players_set.getString("player_name"));
+			}
+			
 			prest.close();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return deletedrows;
+		
+		return player_names;
+	}
+	
+	
+	/**
+	 * Funkcja usuwa danego gracza z bazy DooBStat
+	 * 
+	 * @param player_name
+	 */
+	public boolean removePlayer(String player_name) {
+		Connection conn = this.getConn();
+		
+		String sql = "DELETE FROM " + this.getPrefixed("players") + " " +
+				"WHERE player_name = ?" +
+				"LIMIT 1";
+		
+		int delrows = 0;
+		try {
+			PreparedStatement prest = conn.prepareStatement(sql);
+			prest.setString(1, player_name);
+			delrows = prest.executeUpdate();
+			prest.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		if(delrows < 1) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	
