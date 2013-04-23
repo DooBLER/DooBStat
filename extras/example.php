@@ -1,5 +1,8 @@
 <?php
-
+// 
+// THIS FILE IS NOT FOR USE IN PRODUCTION!!!
+// THIS IS ONLY EXAMPLE HOW THINGS CAN BE DEONE!!!
+//
 // --- CONFIG -----------------------------------------------------------------
 
 $db = array();
@@ -10,14 +13,14 @@ $db["user"] = "";
 $db["pass"] = "";
 $db["prefix"] = "dstat_";
 
+// set timezone for php
+// List of Supported Timezones http://www.php.net/manual/en/timezones.php
+date_default_timezone_set('Europe/Warsaw');
+
 // --- /CONFIG ----------------------------------------------------------------
 
 
 header('Content-Type: text/html; charset=utf-8');
-
-// set timezone for php
-date_default_timezone_set('Europe/Warsaw');
-
 
 // Connecting, selecting database
 $link = mysql_connect($db["host"].":".$db["port"], $db["user"], $db["pass"])
