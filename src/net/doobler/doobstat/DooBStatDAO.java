@@ -38,6 +38,17 @@ public class DooBStatDAO extends MySQL {
 			this.createTables();
 		}
 		
+		int dbver = this.plugin.getConfig().getInt("dbversion", 0);
+		
+		switch(dbver) {
+			case 0:
+				this.update0to1();
+				this.plugin.getConfig().set("version", null);
+				this.plugin.getConfig().set("dbversion", 1);
+				this.plugin.saveConfig();
+				break;
+		}
+		
 		
 		// dodaje SQL do listy dla Prepared statement
 		this.addPrepSQL();
@@ -236,6 +247,45 @@ public class DooBStatDAO extends MySQL {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void update0to1() {
+		Connection conn = this.getConn();
+		
+		String sql = "SELECT ENGINE " +
+				 "FROM information_schema.TABLES " +
+				 "WHERE table_schema = ? " + 
+				 "AND table_name = ?";
+		
+		String dbengine = "";
+		try {
+    		PreparedStatement prest = conn.prepareStatement(sql);
+    		prest.setString(1, this.database);
+    		prest.setString(2, this.getPrefixed("players"));
+    		
+    		ResultSet res = prest.executeQuery();
+    		
+    		// jeśli jest następny wiersz (czyli pierwszy) to znaczy, że tabela istnieje
+    		if(res.next()) {
+    			dbengine = res.getString("ENGINE");
+    		}
+            prest.close();
+    	} catch(SQLException e) {
+            e.printStackTrace();
+        }
+		
+		if(!dbengine.equalsIgnoreCase("MyISAM")) {
+			sql = "ALTER TABLE `" + this.getPrefixed("players") + "` ENGINE = MYISAM";
+			try {
+				Statement statement = conn.createStatement();
+				statement.executeUpdate(sql);
+				statement.close();
+				this.plugin.getLogger().info("DB tables updated from v0 to v1.");
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+		}
 	}
 	
 	

@@ -9,6 +9,8 @@ clean:
   days: 180
   auto: false
   commands:
-    - "say Player $player_name$ has been removed."
+  - say Player $player_name$ has been removed due to a long absence from the server.
+  - say command 2
+  - say command 3
 debug: false
 dbversion: 1

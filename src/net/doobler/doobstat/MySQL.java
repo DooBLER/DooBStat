@@ -21,7 +21,7 @@ public class MySQL {
 	
 	// Dane do logowania mysql
 	private String user = ""; 
-    private String database = ""; 
+    protected String database = ""; 
     private String password = ""; 
     private String port = ""; 
     private String hostname = "";
@@ -91,7 +91,7 @@ public class MySQL {
     public boolean tableExists(String tablename) {
     	
     	String sql = "SELECT * " +
-    				 "FROM information_schema.tables " +
+    				 "FROM information_schema.TABLES " +
     				 "WHERE table_schema = ? " + 
     				 "AND table_name = ?";
     	
