@@ -101,8 +101,9 @@ public class UpdateCheckerTask extends BukkitRunnable {
 				this.version = children.item(1).getTextContent().replaceAll("[ \na-zA-Z_-]", "");
 				this.link = children.item(3).getTextContent();
 				
-				
-				new UpdateInfoTask(this.plugin, this.version, this.link).runTask(this.plugin);
+				if(!this.plugin.getDescription().getVersion().equalsIgnoreCase(this.version)) {
+					new UpdateInfoTask(this.plugin, this.version, this.link).runTask(this.plugin);
+				}
 				
 			} catch (Exception e) {
 				if(this.plugin.getConfig().getBoolean("debug"))

@@ -48,10 +48,11 @@ public class DooBStatPlayerListener implements Listener {
     		if(res.next()) {
     			
     			PreparedStatement prest2 = this.plugin.db.getPreparedStatement("updatePlayerJoin");
-
-    			prest2.setString(1, res.getString("this_login"));
-    			prest2.setTimestamp(2, curtimestamp);
-    			prest2.setInt(3, res.getInt("id"));
+    			
+    			prest2.setString(1, event.getPlayer().getAddress().getAddress().getHostAddress());
+    			prest2.setString(2, res.getString("this_login"));
+    			prest2.setTimestamp(3, curtimestamp);
+    			prest2.setInt(4, res.getInt("id"));
     			prest2.executeUpdate();
         		
         		// dodanie gracza do listy obecnych na serwerze graczy
@@ -69,6 +70,7 @@ public class DooBStatPlayerListener implements Listener {
     			String sql = "INSERT INTO " + plugin.db.getPrefixed("players") +
     				  " SET " +
     				  "player_name = ?, " +
+    				  "player_ip = ?," +
     				  "online = 1, " +
 					  "firstever_login = ?, " +
 					  "last_login = ?, " +
@@ -79,9 +81,10 @@ public class DooBStatPlayerListener implements Listener {
     			PreparedStatement prest2 = conn.prepareStatement(sql,
     					Statement.RETURN_GENERATED_KEYS);
         		prest2.setString(1, event.getPlayer().getName());
-        		prest2.setTimestamp(2, curtimestamp);
+        		prest2.setString(2, event.getPlayer().getAddress().getAddress().getHostAddress());
         		prest2.setTimestamp(3, curtimestamp);
         		prest2.setTimestamp(4, curtimestamp);
+        		prest2.setTimestamp(5, curtimestamp);
         		prest2.executeUpdate();
         		
         		ResultSet rs = prest2.getGeneratedKeys();

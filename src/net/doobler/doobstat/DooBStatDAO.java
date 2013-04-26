@@ -43,6 +43,8 @@ public class DooBStatDAO extends MySQL {
 		switch(dbver) {
 			case 0:
 				this.update0to1();
+			case 1:
+				this.update1to2();
 				break;
 		}
 		
@@ -130,6 +132,7 @@ public class DooBStatDAO extends MySQL {
         this.addStatementSQL("updatePlayerJoin",
         		"UPDATE " + this.getPrefixed("players") + " " +
 				"SET " +
+				"player_ip = ?," +
 				"online = 1, " +
 				"last_login = ?, " +
 				"num_logins = num_logins + 1, " +
@@ -224,6 +227,7 @@ public class DooBStatDAO extends MySQL {
 		String sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("players") + "` (" +
 				 "`id` int(11) NOT NULL AUTO_INCREMENT, " +
 				 "`player_name` varchar(20) NOT NULL, " +
+				 "`player_ip` varchar(15) NOT NULL, " +
 				 "`online` tinyint(1) NOT NULL, " +
 				 "`firstever_login` datetime NOT NULL, " +
 				 "`last_login` datetime DEFAULT NULL, " +
@@ -246,6 +250,13 @@ public class DooBStatDAO extends MySQL {
 		
 	}
 	
+	/**
+	 * Update db from version 0 to 1
+	 * 
+	 * - change db engine to MyISAM
+	 * - add config variables: checkVersion, pluginStats
+	 * - remove config variable: version
+	 */
 	public void update0to1() {
 		Connection conn = this.getConn();
 		
@@ -288,6 +299,70 @@ public class DooBStatDAO extends MySQL {
 		this.plugin.getConfig().set("dbversion", 1);
 		this.plugin.getConfig().set("checkVersion", true);
 		this.plugin.getConfig().set("pluginStats", true);
+		this.plugin.saveConfig();
+	}
+	
+	
+	/**
+	 * Update db from version 1 to 2
+	 * 
+	 */
+	public void update1to2() {
+		Connection conn = this.getConn();
+		
+		String sql = "SELECT COLUMN_NAME " +
+				 "FROM information_schema.COLUMNS " +
+				 "WHERE table_schema = ? " + 
+				 "AND table_name = ?" +
+				 "AND column_name = 'player_ip'";
+		
+		String colName = "";
+		try {
+    		PreparedStatement prest = conn.prepareStatement(sql);
+    		prest.setString(1, this.database);
+    		prest.setString(2, this.getPrefixed("players"));
+    		
+    		ResultSet res = prest.executeQuery();
+    		
+    		// jeśli jest następny wiersz (czyli pierwszy) to znaczy, że tabela istnieje
+    		if(res.next()) {
+    			colName = res.getString("COLUMN_NAME");
+    		}
+            prest.close();
+    	} catch(SQLException e) {
+            e.printStackTrace();
+        }
+		
+		if(!colName.equalsIgnoreCase("player_ip")) {
+			sql = "ALTER TABLE `" + this.getPrefixed("players") + "` " +
+					"ADD `player_ip` VARCHAR( 15 ) " +
+					"CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL " +
+					"AFTER `player_name`";
+			try {
+				Statement statement = conn.createStatement();
+				statement.executeUpdate(sql);
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			
+			sql = "UPDATE " + this.getPrefixed("players") + " " +
+					"SET " +
+					"player_ip = '0.0.0.0' " +
+					"WHERE player_ip = ''";
+			try {
+				Statement statement = conn.createStatement();
+				statement.executeUpdate(sql);
+				statement.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			this.plugin.getLogger().info("DB tables updated from v1 to v2.");
+		}
+		
+		this.plugin.getConfig().set("dbversion", 2);
 		this.plugin.saveConfig();
 	}
 	
