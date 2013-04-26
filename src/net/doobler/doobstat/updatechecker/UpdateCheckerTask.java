@@ -52,58 +52,63 @@ public class UpdateCheckerTask extends BukkitRunnable {
 			{
 				e.printStackTrace();
 			}
-			
 		}
 	}
 	
 	@Override
 	public void run() {
 		
-		try {
-			HttpURLConnection connection = (HttpURLConnection)this.pluginStats.openConnection();
-			connection.setRequestMethod("POST");
-			connection.setDoOutput(true);
-			connection.setDoInput(true);
-			connection.setUseCaches(false);
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8;");
-			connection.setRequestProperty("Content-Length", Integer.toString(this.statParams.length()));
-			
-			// SEND REQUEST
-			DataOutputStream outStream = new DataOutputStream (connection.getOutputStream());
-			outStream.writeBytes(this.statParams);
-			outStream.flush();
-			outStream.close();
-			
-			connection.getInputStream();
+		if(this.plugin.getConfig().getBoolean("pluginStats", true))
+		{
+			try {
+				HttpURLConnection connection = (HttpURLConnection)this.pluginStats.openConnection();
+				connection.setRequestMethod("POST");
+				connection.setDoOutput(true);
+				connection.setDoInput(true);
+				connection.setUseCaches(false);
+				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=utf-8;");
+				connection.setRequestProperty("Content-Length", Integer.toString(this.statParams.length()));
+				
+				// SEND REQUEST
+				DataOutputStream outStream = new DataOutputStream (connection.getOutputStream());
+				outStream.writeBytes(this.statParams);
+				outStream.flush();
+				outStream.close();
+				
+				connection.getInputStream();
 
-		} catch (Exception e1) {
-			if(this.plugin.getConfig().getBoolean("debug"))
-			{
-				e1.printStackTrace();
+			} catch (Exception e1) {
+				if(this.plugin.getConfig().getBoolean("debug"))
+				{
+					e1.printStackTrace();
+				}
 			}
 		}
 		
 		
 		
-		try {
-			InputStream input = this.filesFeed.openConnection().getInputStream();
-			
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(input);
-			
-			Node latestFile = document.getElementsByTagName("item").item(0);
+		if(this.plugin.getConfig().getBoolean("checkVersion", true))
+		{
+			try {
+				InputStream input = this.filesFeed.openConnection().getInputStream();
+				
+				Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(input);
+				
+				Node latestFile = document.getElementsByTagName("item").item(0);
 
-			NodeList children = latestFile.getChildNodes();
-			
-			this.version = children.item(1).getTextContent().replaceAll("[ \na-zA-Z_-]", "");
-			this.link = children.item(3).getTextContent();
-			
-			
-			new UpdateInfoTask(this.plugin, this.version, this.link).runTask(this.plugin);
-			
-		} catch (Exception e) {
-			if(this.plugin.getConfig().getBoolean("debug"))
-			{
-				e.printStackTrace();
+				NodeList children = latestFile.getChildNodes();
+				
+				this.version = children.item(1).getTextContent().replaceAll("[ \na-zA-Z_-]", "");
+				this.link = children.item(3).getTextContent();
+				
+				
+				new UpdateInfoTask(this.plugin, this.version, this.link).runTask(this.plugin);
+				
+			} catch (Exception e) {
+				if(this.plugin.getConfig().getBoolean("debug"))
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 		

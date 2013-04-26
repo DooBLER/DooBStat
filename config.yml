@@ -12,5 +12,7 @@ clean:
   - say Player $player_name$ has been removed due to a long absence from the server.
   - say command 2
   - say command 3
+checkVersion: true
+pluginStats: true
 debug: false
 dbversion: 1

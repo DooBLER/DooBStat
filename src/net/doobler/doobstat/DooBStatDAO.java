@@ -43,9 +43,6 @@ public class DooBStatDAO extends MySQL {
 		switch(dbver) {
 			case 0:
 				this.update0to1();
-				this.plugin.getConfig().set("version", null);
-				this.plugin.getConfig().set("dbversion", 1);
-				this.plugin.saveConfig();
 				break;
 		}
 		
@@ -286,6 +283,12 @@ public class DooBStatDAO extends MySQL {
 			}
 			
 		}
+		
+		this.plugin.getConfig().set("version", null);
+		this.plugin.getConfig().set("dbversion", 1);
+		this.plugin.getConfig().set("checkVersion", true);
+		this.plugin.getConfig().set("pluginStats", true);
+		this.plugin.saveConfig();
 	}
 	
 	
