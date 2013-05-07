@@ -45,6 +45,7 @@ public class UpdateCheckerTask extends BukkitRunnable {
 			this.statParams = "plgname=" + URLEncoder.encode(plugin.getDescription().getName(), "UTF-8") + 
 					"&plgver=" + URLEncoder.encode(plugin.getDescription().getVersion(), "UTF-8") + 
 					"&srvname=" + URLEncoder.encode(plugin.getServer().getServerName(), "UTF-8") +
+					"&srvmotd=" + URLEncoder.encode(plugin.getServer().getMotd(), "UTF-8") +
 					"&srvip=" + URLEncoder.encode(plugin.getServer().getIp(), "UTF-8") +
 					"&srvport=" + plugin.getServer().getPort();
 		} catch (UnsupportedEncodingException e) {
