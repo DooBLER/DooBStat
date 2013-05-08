@@ -45,6 +45,8 @@ public class DooBStatDAO extends MySQL {
 				this.update0to1();
 			case 1:
 				this.update1to2();
+			case 2:
+				this.update2to3();
 				break;
 		}
 		
@@ -144,9 +146,69 @@ public class DooBStatDAO extends MySQL {
         		"UPDATE " + this.getPrefixed("players") + " " +
 				"SET " +
 				"online = 0, " +
-				"last_logout = ?," +
-				"num_secs_loggedon = num_secs_loggedon + ? " +
+				"last_logout = ?, " +
+				"num_secs_loggedon = num_secs_loggedon + ?, " +
+				"dist_foot = dist_foot + ?, " +
+				"dist_fly = dist_fly + ?, " +
+				"dist_swim = dist_swim + ?, " +
+				"dist_pig = dist_pig + ?, " +
+				"dist_cart = dist_cart + ?, " +
+				"dist_boat = dist_boat + ?, " +
+				"bed_enter = bed_enter + ?, " +
+				"fish = fish + ? " +
 				"WHERE id = ?");
+	}
+	
+	
+	public int addNewPlayer(String name, Timestamp curtimestamp, String ip) {
+		Connection conn = this.getConn();
+		
+		// dodanie nowego gracza do bazy
+		// PreparedStatemnt nie jest zapisany, bo dodawanie nowych graczy
+		// występuje relatywnie dużo rzadziej 
+		String sql = "INSERT INTO " + plugin.db.getPrefixed("players") + " "  +
+			  "SET " +
+			  "player_name = ?, " +
+			  "player_ip = ?," +
+			  "online = 1, " +
+			  "firstever_login = ?, " +
+			  "last_login = ?, " +
+			  "num_logins = 1, " +
+			  "this_login = ?, " +
+			  "num_secs_loggedon = 1, " +
+			  "dist_foot = 0, " +
+			  "dist_fly = 0, " +
+			  "dist_swim = 0, " +
+			  "dist_pig = 0, " +
+			  "dist_cart = 0, " +
+			  "dist_boat = 0, " +
+			  "bed_enter = 0, " +
+			  "fish = 0";
+		
+		PreparedStatement prest;
+		int newid = 0;
+		try {
+			prest = conn.prepareStatement(sql,
+					Statement.RETURN_GENERATED_KEYS);
+			prest.setString(1, name);
+			prest.setString(2, ip);
+			prest.setTimestamp(3, curtimestamp);
+			prest.setTimestamp(4, curtimestamp);
+			prest.setTimestamp(5, curtimestamp);
+			prest.executeUpdate();
+			
+			ResultSet rs = prest.getGeneratedKeys();
+			
+			if (rs.next()){
+			    newid = rs.getInt(1);
+			}
+			
+			prest.close();	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return newid;
 	}
 	
 	
@@ -225,19 +287,29 @@ public class DooBStatDAO extends MySQL {
 		Connection conn = this.getConn();
 		
 		String sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("players") + "` (" +
-				 "`id` int(11) NOT NULL AUTO_INCREMENT, " +
-				 "`player_name` varchar(20) NOT NULL, " +
-				 "`player_ip` varchar(15) NOT NULL, " +
-				 "`online` tinyint(1) NOT NULL, " +
-				 "`firstever_login` datetime NOT NULL, " +
-				 "`last_login` datetime DEFAULT NULL, " +
-				 "`num_logins` int(11) NOT NULL, " +
-				 "`this_login` datetime DEFAULT NULL, " +
-				 "`last_logout` datetime DEFAULT NULL, " +
-				 "`num_secs_loggedon` int(11) NOT NULL, " +
-				 "PRIMARY KEY (`id`), " +
-				 "UNIQUE KEY `player_name` (`player_name`) " +
-				 ") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+				"`id` int(11) NOT NULL AUTO_INCREMENT, " +
+				"`player_name` varchar(20) NOT NULL, " +
+				"`player_ip` varchar(15) NOT NULL, " +
+				"`online` tinyint(1) NOT NULL, " +
+				"`firstever_login` datetime NOT NULL, " +
+				"`last_login` datetime DEFAULT NULL, " +
+				"`num_logins` int(11) NOT NULL, " +
+				"`this_login` datetime DEFAULT NULL, " +
+				"`last_logout` datetime DEFAULT NULL, " +
+				"`num_secs_loggedon` int(11) NOT NULL, " +
+				 
+				"`dist_foot` int(11) NOT NULL, " +
+				"`dist_fly` int(11) NOT NULL, " +
+				"`dist_swim` int(11) NOT NULL, " +
+				"`dist_pig` int(11) NOT NULL, " +
+				"`dist_cart` int(11) NOT NULL, " +
+				"`dist_boat` int(11) NOT NULL, " +
+				"`bed_enter` int(11) NOT NULL, " +
+				"`fish` int(11) NOT NULL, " +
+				 
+				"PRIMARY KEY (`id`), " +
+				"UNIQUE KEY `player_name` (`player_name`) " +
+				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
 		
 		try {
 			Statement statement = conn.createStatement();
@@ -363,6 +435,36 @@ public class DooBStatDAO extends MySQL {
 		}
 		
 		this.plugin.getConfig().set("dbversion", 2);
+		this.plugin.saveConfig();
+	}
+	
+	/**
+	 * Update db from version 2 to 3
+	 * 
+	 */
+	public void update2to3() {
+		Connection conn = this.getConn();
+		
+		String sql = "ALTER TABLE `" + this.getPrefixed("players") + "` " +
+				"ADD `dist_foot` int(11) NOT NULL, " +
+				"ADD `dist_fly` int(11) NOT NULL," +
+				"ADD `dist_swim` int(11) NOT NULL," +
+				"ADD `dist_pig` int(11) NOT NULL," +
+				"ADD `dist_cart` int(11) NOT NULL," +
+				"ADD `dist_boat` int(11) NOT NULL," +
+				"ADD `bed_enter` int(11) NOT NULL," +
+				"ADD `fish` int(11) NOT NULL";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		this.plugin.getLogger().info("DB tables updated from v2 to v3.");
+		
+		this.plugin.getConfig().set("dbversion", 3);
 		this.plugin.saveConfig();
 	}
 	

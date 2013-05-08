@@ -15,4 +15,4 @@ clean:
 checkVersion: true
 pluginStats: true
 debug: false
-dbversion: 2
+dbversion: 3

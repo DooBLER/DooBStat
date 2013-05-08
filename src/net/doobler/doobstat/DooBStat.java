@@ -142,9 +142,21 @@ public final class DooBStat extends JavaPlugin {
 		while (wpisy.hasNext()) {
 		    Map.Entry<String, DooBStatPlayerData> wpis = wpisy.next();
 		    try {
+		    	DooBStatPlayerData playerData = wpis.getValue();
+		    	
 				prest.setTimestamp(1, curtimestamp);
-				prest.setInt(2, (int)((curdate.getTime() - wpis.getValue().getLoginDate().getTime())/1000));
-				prest.setInt(3, wpis.getValue().getPlayerId());
+				prest.setInt(2, (int)((curdate.getTime() - playerData.getLoginDate().getTime())/1000));
+				
+				prest.setInt(3, (int)playerData.getDist(DooBStatPlayerData.FOOT));
+				prest.setInt(4, (int)playerData.getDist(DooBStatPlayerData.FLY));
+				prest.setInt(5, (int)playerData.getDist(DooBStatPlayerData.SWIM));
+				prest.setInt(6, (int)playerData.getDist(DooBStatPlayerData.PIG));
+				prest.setInt(7, (int)playerData.getDist(DooBStatPlayerData.CART));
+				prest.setInt(8, (int)playerData.getDist(DooBStatPlayerData.BOAT));
+				prest.setInt(9, playerData.getBedEnter());
+				prest.setInt(10, playerData.getFish());
+				
+				prest.setInt(11, playerData.getPlayerId());
 				prest.addBatch();
 			} catch (SQLException e) {
 				e.printStackTrace();
