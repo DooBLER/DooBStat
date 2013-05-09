@@ -23,17 +23,33 @@ public class DooBStatDstatCommand implements CommandExecutor {
 			String[] args) {
 		
 		if (args.length > 0) {
-			if(!sender.hasPermission("dstat.dstat.clean")) {
-				sender.sendMessage("You don't have dstat.dstat.clean");
-				return false;
-			}
+			
             if(args[0].equalsIgnoreCase("clean")) {
+            	if(!sender.hasPermission("dstat.dstat.clean")) {
+    				sender.sendMessage("You don't have dstat.dstat.clean");
+    				return true;
+    			}
+
             	if(!CleanPlayersTask.is_working) {
             		new CleanPlayersTask(this.plugin).runTask(this.plugin);
             	} else {
             		this.plugin.getLogger().info("Cleaning is in progress." +
             				"You cannot start this command now.");
             	}
+            	return true;
+            } else if(args[0].equalsIgnoreCase("cleandat")) {
+            	if(!sender.hasPermission("dstat.dstat.cleandat")) {
+    				sender.sendMessage("You don't have dstat.dstat.cleandat");
+    				return true;
+    			}
+            	
+            	if(!CleanPlayersTask.is_working) {
+            		new CleanPlayersTask(this.plugin, true).runTask(this.plugin);
+            	} else {
+            		this.plugin.getLogger().info("Cleaning is in progress." +
+            				"You cannot start this command now.");
+            	}
+            	
             	return true;
             }
         } 

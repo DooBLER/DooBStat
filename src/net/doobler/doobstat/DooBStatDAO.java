@@ -125,7 +125,7 @@ public class DooBStatDAO extends MySQL {
 		
 		// pobiera dane gracza na podstawie nicku
 		this.addStatementSQL("getPlayerByName",
-				"SELECT * " +
+				"SELECT `id`, `player_name`, `this_login` " +
 				"FROM " + this.getPrefixed("players") + " " +
 				"WHERE LOWER(`player_name`) = LOWER(?)" +
 				"LIMIT 1");
@@ -159,7 +159,14 @@ public class DooBStatDAO extends MySQL {
 				"WHERE id = ?");
 	}
 	
-	
+	/**
+	 * Dodaje nowego gracza do bazy i zwraca id
+	 * 
+	 * @param name - player name
+	 * @param curtimestamp - timestamp
+	 * @param ip - player ip
+	 * @return database id
+	 */
 	public int addNewPlayer(String name, Timestamp curtimestamp, String ip) {
 		Connection conn = this.getConn();
 		
@@ -212,6 +219,31 @@ public class DooBStatDAO extends MySQL {
 	}
 	
 	
+	
+	public List<String> getAllNames() {
+		List<String> player_names = new ArrayList<String>();
+		
+		Connection conn = this.getConn();
+		
+		String sql = "SELECT `player_name` FROM " + this.getPrefixed("players") + " " +
+				"WHERE 1";
+		
+		try {
+			Statement st = conn.createStatement();
+			ResultSet players_set = st.executeQuery(sql);
+			
+			while(players_set.next()) {
+				player_names.add(players_set.getString("player_name"));
+			}
+	
+			st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return player_names;
+	}
+	
 	/**
 	 * Zwraca listę nazw graczy do usunięcia z powodu przekroczenia czasu podanego w configu
 	 * 
@@ -237,9 +269,8 @@ public class DooBStatDAO extends MySQL {
 			while(players_set.next()) {
 				player_names.add(players_set.getString("player_name"));
 			}
-			
+	
 			prest.close();
-			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

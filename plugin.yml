@@ -32,10 +32,14 @@ permissions:
     children:
       dstat.dstat: true
       dstat.dstat.clean: true
+      dstat.dstat.cleandat: true
   dstat.dstat:
     default: false
     description: "[/dstat] base command."
   dstat.dstat.clean:
     default: false
     description: "[/dstat clean] command."
+  dstat.dstat.cleandat:
+    default: false
+    description: "[/dstat cleandat] command."
     
