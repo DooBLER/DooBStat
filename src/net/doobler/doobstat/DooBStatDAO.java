@@ -317,6 +317,7 @@ public class DooBStatDAO extends MySQL {
 		
 		Connection conn = this.getConn();
 		
+		// players
 		String sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("players") + "` (" +
 				"`id` int(11) NOT NULL AUTO_INCREMENT, " +
 				"`player_name` varchar(20) NOT NULL, " +
@@ -341,16 +342,43 @@ public class DooBStatDAO extends MySQL {
 				"PRIMARY KEY (`id`), " +
 				"UNIQUE KEY `player_name` (`player_name`) " +
 				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+			this.plugin.getLogger().info("DB table created: 'players'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		// morestats
+		sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("morestats") + "` (" +
+				"`id` int(11) NOT NULL AUTO_INCREMENT, " +
+				"`player_name` varchar(20) NOT NULL, " +
+				
+				"`dist_foot` int(11) NOT NULL, " +
+				"`dist_fly` int(11) NOT NULL, " +
+				"`dist_swim` int(11) NOT NULL, " +
+				"`dist_pig` int(11) NOT NULL, " +
+				"`dist_cart` int(11) NOT NULL, " +
+				"`dist_boat` int(11) NOT NULL, " +
+				"`bed_enter` int(11) NOT NULL, " +
+				"`fish` int(11) NOT NULL, " +
+		
+				"PRIMARY KEY (`id`), " +
+				"UNIQUE KEY `player_name` (`player_name`) " +
+				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
 		
 		try {
 			Statement statement = conn.createStatement();
 			statement.executeUpdate(sql);
 			statement.close();
-			this.plugin.getLogger().info("DB tables created.");
+			this.plugin.getLogger().info("DB tables created: 'morestats'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+	
+	
 	}
 	
 	/**
@@ -499,5 +527,68 @@ public class DooBStatDAO extends MySQL {
 		this.plugin.saveConfig();
 	}
 	
-	
+	/**
+	 * Update db from version 3 to 4
+	 * 
+	 */
+	public void update3to4() {
+		Connection conn = this.getConn();
+		
+		// create table
+		String sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("morestats") + "` (" +
+				"`id` int(11) NOT NULL AUTO_INCREMENT, " +
+				"`player_name` varchar(20) NOT NULL, " +
+				
+				"`dist_foot` int(11) NOT NULL, " +
+				"`dist_fly` int(11) NOT NULL, " +
+				"`dist_swim` int(11) NOT NULL, " +
+				"`dist_pig` int(11) NOT NULL, " +
+				"`dist_cart` int(11) NOT NULL, " +
+				"`dist_boat` int(11) NOT NULL, " +
+				"`bed_enter` int(11) NOT NULL, " +
+				"`fish` int(11) NOT NULL, " +
+		
+				"PRIMARY KEY (`id`), " +
+				"UNIQUE KEY `player_name` (`player_name`) " +
+				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//copy data
+		sql = "INSERT INTO `" + this.getPrefixed("morestats") + "` (" +
+				"`id`, `player_name`, `dist_foot`, `dist_fly`, `dist_swim`, " +
+				"`dist_pig`, `dist_cart`, `dist_boat`, `bed_enter`, `fish`) " +
+				"SELECT `id`, `player_name`, `dist_foot`, `dist_fly`, `dist_swim`, " +
+				"`dist_pig`, `dist_cart`, `dist_boat`, `bed_enter`, `fish` " +
+				"FROM `" + this.getPrefixed("players") + "`";
+		
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		// remove columns
+		sql = "ALTER TABLE `" + this.getPrefixed("players") + "` " +
+				"DROP COLUMN `dist_foot`, " +
+				"DROP COLUMN `dist_fly`, " +
+				"DROP COLUMN `dist_swim`, " +
+				"DROP COLUMN `dist_pig`, " +
+				"DROP COLUMN `dist_cart`, " +
+				"DROP COLUMN `dist_boat`, " +
+				"DROP COLUMN `dist_boat`, " +
+				"DROP COLUMN `fish`";
+		
+		this.plugin.getLogger().info("DB tables updated from v3 to v4.");
+		
+		this.plugin.getConfig().set("dbversion", 4);
+		this.plugin.saveConfig();
+	}
 }
