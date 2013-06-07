@@ -570,7 +570,7 @@ public class DooBStatDAO extends MySQL {
 				"`bed_enter` int(11) NOT NULL, " +
 				"`fish` int(11) NOT NULL, " +
 		
-				"PRIMARY KEY (`id`), " +
+				"PRIMARY KEY (`id`) " +
 				") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 		try {
 			Statement statement = conn.createStatement();
