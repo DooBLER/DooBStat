@@ -13,6 +13,9 @@ $db["user"] = "";
 $db["pass"] = "";
 $db["prefix"] = "dstat_";
 
+// if you like you can copy above array to separate file...
+@include('cfg.php');
+
 // set timezone for php
 // List of Supported Timezones http://www.php.net/manual/en/timezones.php
 date_default_timezone_set('Europe/Warsaw');
@@ -28,6 +31,12 @@ $link = mysql_connect($db["host"].":".$db["port"], $db["user"], $db["pass"])
 mysql_select_db($db["name"]) or die('Could not select database');
 
 
+/**
+ * Function converts time in secons to "XXXd XXh XXm XXs" format.
+ * 
+ * @param int $sek
+ * @return string
+ */
 function stodgms($sek) {
     $d = 0;
     $g = 0;
@@ -52,7 +61,6 @@ function stodgms($sek) {
     }
     $sek = $sek%$mm;
     
-    
     if($d > 0) {
         return $d.'d&nbsp;'.$g.'h&nbsp'.$m.'m&nbsp'.$sek.'s';
     } else {
@@ -60,13 +68,21 @@ function stodgms($sek) {
     }
 }
 
+/**
+ * Player details view
+ * 
+ * @param string $player_name
+ */
 function player_view($player_name)
 {
     global $db;
     
     // Performing SQL query
-    $query = 'SELECT * FROM '.$db["prefix"]."players 
-              WHERE player_name='".$player_name."' LIMIT 1";
+    $query = "SELECT * 
+    		  FROM ".$db["prefix"]."players 
+    		  INNER JOIN ".$db["prefix"]."morestats USING(id)
+    		  WHERE player_name='".$player_name."' LIMIT 1";
+    
     $result = mysql_query($query) or die('Query failed: ' . mysql_error());
     
     
@@ -139,6 +155,9 @@ function player_view($player_name)
 <?php
 }
 
+/**
+ * Players list view
+ */
 function list_view()
 {
     global $db;
@@ -154,6 +173,7 @@ function list_view()
 <table>
     <thead>
         <tr>
+            <th>#</th>
             <th>Player name</th>
             <th>Online</th>
             <th>First login</th>
@@ -167,8 +187,9 @@ function list_view()
     
 <?php
 // Printing results in HTML
+$count = 0;
 while ($line = mysql_fetch_array($result, MYSQL_ASSOC)):
-
+    $count += 1;
     $first_login = strtotime($line['firstever_login']);
     $last_login = strtotime($line['last_login']);
     $this_login = strtotime($line['this_login']);
@@ -192,6 +213,9 @@ while ($line = mysql_fetch_array($result, MYSQL_ASSOC)):
 
 ?>
     <tr>
+        <td class="right">
+            <?php echo $count; ?>
+        </td>
         <td class="nazwa" title="logins: <?php echo $line['num_logins']; ?>, days: <?php echo $ldni; ?>">
             <a href="<?php echo $_SERVER['PHP_SELF']."?v=player&name=".$line['player_name']; ?>"><?php echo $line['player_name']; ?></a>
         </td>
@@ -255,9 +279,8 @@ mysql_close($link);
 
 
 
+<?php // ---- HTML TEMPLATE ------------------------------------------------- ?>
 
-
-<?php // ---- TEMPLATE --------------------------------------------------- ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
         
