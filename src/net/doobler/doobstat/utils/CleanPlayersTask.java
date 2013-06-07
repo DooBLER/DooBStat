@@ -76,7 +76,7 @@ public class CleanPlayersTask extends BukkitRunnable {
 		}
 
 		
-		// wyzerowanie liczników w klasie uduwającej
+		// wyzerowanie liczników w klasie usuwającej
 		DeletePlayerTask.delcount = 1;
 		DeletePlayerTask.delmax = players_to_del.size();
 		
@@ -84,8 +84,8 @@ public class CleanPlayersTask extends BukkitRunnable {
 			int counter = 1;
 			Iterator<String> pl_iter = players_to_del.iterator();
 			while(pl_iter.hasNext()) {
-				new DeletePlayerTask(
-						this.plugin, pl_iter.next()).runTaskLater(this.plugin, (counter*20));
+				new DeletePlayerTask(this.plugin,
+						pl_iter.next()).runTaskLater(this.plugin, (counter*20));
 				counter += 1;
 			}
 		} else {

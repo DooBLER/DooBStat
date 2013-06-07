@@ -1,6 +1,6 @@
 name: DooBStat
 main: net.doobler.doobstat.DooBStat
-version: "0.4.0"
+version: "0.5.0"
 commands:
   dstat:
     description: All basic commands.
@@ -8,6 +8,7 @@ commands:
            Usage:
            /<command> - Display help
            /<command> clean - Clean all records older than the number of days stored in config.
+           /<command> cleandat - Delete all *.dat files from players that are not in dstat DB.
     permission: dstat.dstat
     permission-message: You don't have <permission>
 permissions:

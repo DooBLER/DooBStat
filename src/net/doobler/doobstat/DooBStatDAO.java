@@ -47,6 +47,8 @@ public class DooBStatDAO extends MySQL {
 				this.update1to2();
 			case 2:
 				this.update2to3();
+			case 3:
+				this.update3to4();
 				break;
 		}
 		
@@ -100,7 +102,6 @@ public class DooBStatDAO extends MySQL {
 		try {
 			prest.clearParameters();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return prest; 
@@ -143,11 +144,17 @@ public class DooBStatDAO extends MySQL {
 		
 		// aktualizuje dane gracza przy wychodzeniu z serwera
         this.addStatementSQL("updatePlayerQuit",
-        		"UPDATE " + this.getPrefixed("players") + " " +
+        		"UPDATE `" + this.getPrefixed("players") + "` " +
 				"SET " +
 				"online = 0, " +
 				"last_logout = ?, " +
-				"num_secs_loggedon = num_secs_loggedon + ?, " +
+				"num_secs_loggedon = num_secs_loggedon + ? " +
+				"WHERE id = ?");
+        
+     // aktualizuje statystyki gracza przy wychodzeniu z serwera
+        this.addStatementSQL("updatePlayerStatQuit",
+				"UPDATE `" + this.getPrefixed("morestats") + "` " +
+				"SET " +
 				"dist_foot = dist_foot + ?, " +
 				"dist_fly = dist_fly + ?, " +
 				"dist_swim = dist_swim + ?, " +
@@ -173,6 +180,8 @@ public class DooBStatDAO extends MySQL {
 		// dodanie nowego gracza do bazy
 		// PreparedStatemnt nie jest zapisany, bo dodawanie nowych graczy
 		// występuje relatywnie dużo rzadziej 
+		
+		// players table
 		String sql = "INSERT INTO " + plugin.db.getPrefixed("players") + " "  +
 			  "SET " +
 			  "player_name = ?, " +
@@ -182,15 +191,7 @@ public class DooBStatDAO extends MySQL {
 			  "last_login = ?, " +
 			  "num_logins = 1, " +
 			  "this_login = ?, " +
-			  "num_secs_loggedon = 1, " +
-			  "dist_foot = 0, " +
-			  "dist_fly = 0, " +
-			  "dist_swim = 0, " +
-			  "dist_pig = 0, " +
-			  "dist_cart = 0, " +
-			  "dist_boat = 0, " +
-			  "bed_enter = 0, " +
-			  "fish = 0";
+			  "num_secs_loggedon = 1";
 		
 		PreparedStatement prest;
 		int newid = 0;
@@ -215,11 +216,37 @@ public class DooBStatDAO extends MySQL {
 			e.printStackTrace();
 		}
 		
+		// morestats table
+		sql = "INSERT INTO " + plugin.db.getPrefixed("morestats") + " "  +
+				"SET " +
+				"id = ?, " +
+				"dist_foot = 0, " +
+				"dist_fly = 0, " +
+				"dist_swim = 0, " +
+				"dist_pig = 0, " +
+				"dist_cart = 0, " +
+				"dist_boat = 0, " +
+				"bed_enter = 0, " +
+				"fish = 0";
+		try {
+			prest = conn.prepareStatement(sql);
+			prest.setInt(1, newid);
+			prest.executeUpdate();
+			
+			prest.close();	
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 		return newid;
 	}
 	
 	
-	
+	/**
+	 * Zwraca listę nazw wszystkich graczy
+	 * 
+	 * @return
+	 */
 	public List<String> getAllNames() {
 		List<String> player_names = new ArrayList<String>();
 		
@@ -288,15 +315,22 @@ public class DooBStatDAO extends MySQL {
 	public boolean removePlayer(String player_name) {
 		Connection conn = this.getConn();
 		
-		String sql = "DELETE FROM " + this.getPrefixed("players") + " " +
-				"WHERE player_name = ?" +
-				"LIMIT 1";
+		String sql = "DELETE t1, t2 " +
+				"FROM " + this.getPrefixed("players") + " AS t1 " +
+				"INNER JOIN " + this.getPrefixed("morestats") +" AS t2 " +
+				"WHERE t1.player_name=? " +
+				"AND t1.id=t2.id";
 		
 		int delrows = 0;
 		try {
 			PreparedStatement prest = conn.prepareStatement(sql);
 			prest.setString(1, player_name);
+			
+			this.plugin.getLogger().info(prest.toString());
+			
 			delrows = prest.executeUpdate();
+			
+			
 			prest.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -330,15 +364,6 @@ public class DooBStatDAO extends MySQL {
 				"`last_logout` datetime DEFAULT NULL, " +
 				"`num_secs_loggedon` int(11) NOT NULL, " +
 				 
-				"`dist_foot` int(11) NOT NULL, " +
-				"`dist_fly` int(11) NOT NULL, " +
-				"`dist_swim` int(11) NOT NULL, " +
-				"`dist_pig` int(11) NOT NULL, " +
-				"`dist_cart` int(11) NOT NULL, " +
-				"`dist_boat` int(11) NOT NULL, " +
-				"`bed_enter` int(11) NOT NULL, " +
-				"`fish` int(11) NOT NULL, " +
-				 
 				"PRIMARY KEY (`id`), " +
 				"UNIQUE KEY `player_name` (`player_name`) " +
 				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
@@ -353,8 +378,7 @@ public class DooBStatDAO extends MySQL {
 		
 		// morestats
 		sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("morestats") + "` (" +
-				"`id` int(11) NOT NULL AUTO_INCREMENT, " +
-				"`player_name` varchar(20) NOT NULL, " +
+				"`id` int(11) NOT NULL, " +
 				
 				"`dist_foot` int(11) NOT NULL, " +
 				"`dist_fly` int(11) NOT NULL, " +
@@ -366,8 +390,7 @@ public class DooBStatDAO extends MySQL {
 				"`fish` int(11) NOT NULL, " +
 		
 				"PRIMARY KEY (`id`), " +
-				"UNIQUE KEY `player_name` (`player_name`) " +
-				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+				") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 		
 		try {
 			Statement statement = conn.createStatement();
@@ -536,8 +559,7 @@ public class DooBStatDAO extends MySQL {
 		
 		// create table
 		String sql = "CREATE TABLE IF NOT EXISTS `" + this.getPrefixed("morestats") + "` (" +
-				"`id` int(11) NOT NULL AUTO_INCREMENT, " +
-				"`player_name` varchar(20) NOT NULL, " +
+				"`id` int(11) NOT NULL, " +
 				
 				"`dist_foot` int(11) NOT NULL, " +
 				"`dist_fly` int(11) NOT NULL, " +
@@ -549,8 +571,7 @@ public class DooBStatDAO extends MySQL {
 				"`fish` int(11) NOT NULL, " +
 		
 				"PRIMARY KEY (`id`), " +
-				"UNIQUE KEY `player_name` (`player_name`) " +
-				") ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+				") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 		try {
 			Statement statement = conn.createStatement();
 			statement.executeUpdate(sql);
@@ -561,9 +582,9 @@ public class DooBStatDAO extends MySQL {
 		
 		//copy data
 		sql = "INSERT INTO `" + this.getPrefixed("morestats") + "` (" +
-				"`id`, `player_name`, `dist_foot`, `dist_fly`, `dist_swim`, " +
+				"`id`, `dist_foot`, `dist_fly`, `dist_swim`, " +
 				"`dist_pig`, `dist_cart`, `dist_boat`, `bed_enter`, `fish`) " +
-				"SELECT `id`, `player_name`, `dist_foot`, `dist_fly`, `dist_swim`, " +
+				"SELECT `id`, `dist_foot`, `dist_fly`, `dist_swim`, " +
 				"`dist_pig`, `dist_cart`, `dist_boat`, `bed_enter`, `fish` " +
 				"FROM `" + this.getPrefixed("players") + "`";
 		
@@ -583,8 +604,15 @@ public class DooBStatDAO extends MySQL {
 				"DROP COLUMN `dist_pig`, " +
 				"DROP COLUMN `dist_cart`, " +
 				"DROP COLUMN `dist_boat`, " +
-				"DROP COLUMN `dist_boat`, " +
+				"DROP COLUMN `bed_enter`, " +
 				"DROP COLUMN `fish`";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		
 		this.plugin.getLogger().info("DB tables updated from v3 to v4.");
 		

@@ -138,6 +138,9 @@ public final class DooBStat extends JavaPlugin {
 		
 		// zapisanie wszystkich pozostających na serwerze graczy
 		PreparedStatement prest = this.db.getPreparedStatement("updatePlayerQuit");
+		PreparedStatement prest2 = this.db.getPreparedStatement("updatePlayerStatQuit");
+		
+		
 		Iterator<Map.Entry<String, DooBStatPlayerData>> wpisy = this.playerslist.entrySet().iterator();
 		while (wpisy.hasNext()) {
 		    Map.Entry<String, DooBStatPlayerData> wpis = wpisy.next();
@@ -146,18 +149,19 @@ public final class DooBStat extends JavaPlugin {
 		    	
 				prest.setTimestamp(1, curtimestamp);
 				prest.setInt(2, (int)((curdate.getTime() - playerData.getLoginDate().getTime())/1000));
-				
-				prest.setInt(3, (int)playerData.getDist(DooBStatPlayerData.FOOT));
-				prest.setInt(4, (int)playerData.getDist(DooBStatPlayerData.FLY));
-				prest.setInt(5, (int)playerData.getDist(DooBStatPlayerData.SWIM));
-				prest.setInt(6, (int)playerData.getDist(DooBStatPlayerData.PIG));
-				prest.setInt(7, (int)playerData.getDist(DooBStatPlayerData.CART));
-				prest.setInt(8, (int)playerData.getDist(DooBStatPlayerData.BOAT));
-				prest.setInt(9, playerData.getBedEnter());
-				prest.setInt(10, playerData.getFish());
-				
-				prest.setInt(11, playerData.getPlayerId());
+				prest.setInt(3, playerData.getPlayerId());
 				prest.addBatch();
+				
+				prest2.setInt(1, (int)playerData.getDist(DooBStatPlayerData.FOOT));
+				prest2.setInt(2, (int)playerData.getDist(DooBStatPlayerData.FLY));
+				prest2.setInt(3, (int)playerData.getDist(DooBStatPlayerData.SWIM));
+				prest2.setInt(4, (int)playerData.getDist(DooBStatPlayerData.PIG));
+				prest2.setInt(5, (int)playerData.getDist(DooBStatPlayerData.CART));
+				prest2.setInt(6, (int)playerData.getDist(DooBStatPlayerData.BOAT));
+				prest2.setInt(7, playerData.getBedEnter());
+				prest2.setInt(8, playerData.getFish());
+				prest2.setInt(9, playerData.getPlayerId());
+				prest2.addBatch();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -167,6 +171,8 @@ public final class DooBStat extends JavaPlugin {
 		try {
 			prest.executeBatch();
 			prest.clearBatch();
+			prest2.executeBatch();
+			prest2.clearBatch();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
