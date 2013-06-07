@@ -86,9 +86,10 @@ public final class DooBStat extends JavaPlugin {
     		try {
     			// jeśli istnieje następny wiersz to dane zostały pobrane
 				if(res.next()) {
-	    			prest2.setString(1, res.getString("this_login"));
-	    			prest2.setTimestamp(2, curtimestamp);
-	    			prest2.setInt(3, res.getInt("id"));
+	    			prest2.setString(1, all.getAddress().getAddress().getHostAddress());
+	    			prest2.setString(2, res.getString("this_login"));
+	    			prest2.setTimestamp(3, curtimestamp);
+	    			prest2.setInt(4, res.getInt("id"));
 	    			prest2.addBatch();
 	    			
 	    			// dodanie gracza do listy obecnych na serwerze graczy
@@ -177,7 +178,7 @@ public final class DooBStat extends JavaPlugin {
 			e.printStackTrace();
 		}
 		
-		getLogger().info("onDisable function");
+		//getLogger().info("onDisable function");
 	}
 	
 }
