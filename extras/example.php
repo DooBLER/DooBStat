@@ -132,6 +132,7 @@ function player_view($player_name)
     <li>When flying: <strong><?php echo number_format($row['dist_fly']/1000.0, 3, ',', ' '); ?></strong> km</li>
     <li>When swimming: <strong><?php echo number_format($row['dist_swim']/1000.0, 3, ',', ' '); ?></strong> km</li>
     <li>On pig: <strong><?php echo number_format($row['dist_pig']/1000.0, 3, ',', ' '); ?></strong> km</li>
+    <li>On horse: <strong><?php echo number_format($row['dist_horse']/1000.0, 3, ',', ' '); ?></strong> km</li>
     <li>On minecart: <strong><?php echo number_format($row['dist_cart']/1000.0, 3, ',', ' '); ?></strong> km</li>
     <li>On boat: <strong><?php echo number_format($row['dist_boat']/1000.0, 3, ',', ' '); ?></strong> km</li>
 </ul>

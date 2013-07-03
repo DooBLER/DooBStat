@@ -49,6 +49,8 @@ public class DooBStatDAO extends MySQL {
 				this.update2to3();
 			case 3:
 				this.update3to4();
+			case 4:
+				this.update4to5();
 				break;
 		}
 		
@@ -161,6 +163,7 @@ public class DooBStatDAO extends MySQL {
 				"dist_pig = dist_pig + ?, " +
 				"dist_cart = dist_cart + ?, " +
 				"dist_boat = dist_boat + ?, " +
+				"dist_horse = dist_horse + ?, " +
 				"bed_enter = bed_enter + ?, " +
 				"fish = fish + ? " +
 				"WHERE id = ?");
@@ -226,6 +229,7 @@ public class DooBStatDAO extends MySQL {
 				"dist_pig = 0, " +
 				"dist_cart = 0, " +
 				"dist_boat = 0, " +
+				"dist_horse = 0, " +
 				"bed_enter = 0, " +
 				"fish = 0";
 		try {
@@ -386,6 +390,7 @@ public class DooBStatDAO extends MySQL {
 				"`dist_pig` int(11) NOT NULL, " +
 				"`dist_cart` int(11) NOT NULL, " +
 				"`dist_boat` int(11) NOT NULL, " +
+				"`dist_horse` int(11) NOT NULL, " +
 				"`bed_enter` int(11) NOT NULL, " +
 				"`fish` int(11) NOT NULL, " +
 		
@@ -617,6 +622,43 @@ public class DooBStatDAO extends MySQL {
 		this.plugin.getLogger().info("DB tables updated from v3 to v4.");
 		
 		this.plugin.getConfig().set("dbversion", 4);
+		this.plugin.saveConfig();
+	}
+	
+	/**
+	 * Update db from version 4 to 5
+	 * 
+	 */
+	public void update4to5() {
+		Connection conn = this.getConn();
+		
+		String sql = "ALTER TABLE `" + this.getPrefixed("morestats") + "` " +
+				"ADD `dist_horse` int(11) NOT NULL " +
+				"AFTER `dist_boat`";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+//		sql = "UPDATE " + this.getPrefixed("morestats") + " " +
+//				"SET " +
+//				"dist_horse = 0 " +
+//				"WHERE dist_horse = ''";
+//		try {
+//			Statement statement = conn.createStatement();
+//			statement.executeUpdate(sql);
+//			statement.close();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+		
+		this.plugin.getLogger().info("DB tables updated from v4 to v5.");
+
+		this.plugin.getConfig().set("dbversion", 5);
 		this.plugin.saveConfig();
 	}
 }

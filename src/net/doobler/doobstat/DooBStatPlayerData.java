@@ -10,14 +10,14 @@ public class DooBStatPlayerData {
 	private int stat_bed_enter = 0;
 	private int stat_fish = 0;
 	
-	private double[] dist = new double[6];
+	private double[] dist = new double[7];
 	public static final char FOOT = 0; // 0 - foot
 	public static final char FLY  = 1; // 1 - fly
 	public static final char SWIM = 2; // 2 - swim
 	public static final char PIG  = 3; // 3 - pig
 	public static final char CART = 4; // 4 - cart
 	public static final char BOAT = 5; // 5 - boat
-	
+	public static final char HORSE = 6; // 5 - horse
 	
 	DooBStatPlayerData(int id, String playername, Date thislogin) {
 		this.playerid = id;

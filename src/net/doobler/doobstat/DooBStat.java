@@ -159,9 +159,10 @@ public final class DooBStat extends JavaPlugin {
 				prest2.setInt(4, (int)playerData.getDist(DooBStatPlayerData.PIG));
 				prest2.setInt(5, (int)playerData.getDist(DooBStatPlayerData.CART));
 				prest2.setInt(6, (int)playerData.getDist(DooBStatPlayerData.BOAT));
-				prest2.setInt(7, playerData.getBedEnter());
-				prest2.setInt(8, playerData.getFish());
-				prest2.setInt(9, playerData.getPlayerId());
+				prest2.setInt(7, (int)playerData.getDist(DooBStatPlayerData.HORSE));
+				prest2.setInt(8, playerData.getBedEnter());
+				prest2.setInt(9, playerData.getFish());
+				prest2.setInt(10, playerData.getPlayerId());
 				prest2.addBatch();
 			} catch (SQLException e) {
 				e.printStackTrace();

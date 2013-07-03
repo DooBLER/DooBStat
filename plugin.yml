@@ -1,6 +1,6 @@
 name: DooBStat
 main: net.doobler.doobstat.DooBStat
-version: "0.5.0"
+version: "0.5.2"
 commands:
   dstat:
     description: All basic commands.

@@ -118,9 +118,10 @@ public class DooBStatPlayerListener implements Listener {
 				prest2.setInt(4, (int)playerData.getDist(DooBStatPlayerData.PIG));
 				prest2.setInt(5, (int)playerData.getDist(DooBStatPlayerData.CART));
 				prest2.setInt(6, (int)playerData.getDist(DooBStatPlayerData.BOAT));
-				prest2.setInt(7, playerData.getBedEnter());
-				prest2.setInt(8, playerData.getFish());
-				prest2.setInt(9, playerData.getPlayerId());
+				prest2.setInt(7, (int)playerData.getDist(DooBStatPlayerData.HORSE));
+				prest2.setInt(8, playerData.getBedEnter());
+				prest2.setInt(9, playerData.getFish());
+				prest2.setInt(10, playerData.getPlayerId());
 				prest2.executeUpdate();
 				prest2.clearParameters();
 				
@@ -144,15 +145,25 @@ public class DooBStatPlayerListener implements Listener {
         if(distance == 0) return;
         	
         if(player.isInsideVehicle()) {
-        	Vehicle vehicle = (Vehicle) player.getVehicle();
         	
-        	if(vehicle.getType().equals(EntityType.PIG)) {
-        		playerData.addDist(DooBStatPlayerData.PIG, distance);
-        	} else if(vehicle.getType().equals(EntityType.MINECART)) {
-        		playerData.addDist(DooBStatPlayerData.CART, distance);
-        	} else if(vehicle.getType().equals(EntityType.BOAT)) {
-        		playerData.addDist(DooBStatPlayerData.BOAT, distance);
+        	if(player.getVehicle() instanceof Vehicle) {
+        		Vehicle vehicle = (Vehicle) player.getVehicle();
+            	
+            	if(vehicle.getType().equals(EntityType.PIG)) {
+            		playerData.addDist(DooBStatPlayerData.PIG, distance);
+            	} else if(vehicle.getType().equals(EntityType.MINECART)) {
+            		playerData.addDist(DooBStatPlayerData.CART, distance);
+            	} else if(vehicle.getType().equals(EntityType.BOAT)) {
+            		playerData.addDist(DooBStatPlayerData.BOAT, distance);
+            	}
         	}
+        	else {
+        		// TODO - no horse api in bukkit dev
+        		// horse, for now...
+        		playerData.addDist(DooBStatPlayerData.HORSE, distance);
+        		// plugin.getLogger().info("on horse");
+        	}
+        	
         } else if(player.isFlying()) {
         	playerData.addDist(DooBStatPlayerData.FLY, distance);
         } else if(playerLocation.getBlock().getType().equals(Material.WATER) || 
