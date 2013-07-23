@@ -143,7 +143,8 @@ public class DooBStatPlayerListener implements Listener {
         double distance = event.getFrom().distance(event.getTo());
         
         if(distance == 0) return;
-        	
+        
+        // jeśli gracz (na) czymś jedzie
         if(player.isInsideVehicle()) {
         	
         	if(player.getVehicle() instanceof Vehicle) {
@@ -155,15 +156,12 @@ public class DooBStatPlayerListener implements Listener {
             		playerData.addDist(DooBStatPlayerData.CART, distance);
             	} else if(vehicle.getType().equals(EntityType.BOAT)) {
             		playerData.addDist(DooBStatPlayerData.BOAT, distance);
+            	} else if(vehicle.getType().equals(EntityType.HORSE)) {
+            		playerData.addDist(DooBStatPlayerData.HORSE, distance);
             	}
         	}
-        	else {
-        		// TODO - no horse api in bukkit dev
-        		// horse, for now...
-        		playerData.addDist(DooBStatPlayerData.HORSE, distance);
-        		// plugin.getLogger().info("on horse");
-        	}
-        	
+        
+        // jeśli gracz lata, pływa, lub idzie piechotą
         } else if(player.isFlying()) {
         	playerData.addDist(DooBStatPlayerData.FLY, distance);
         } else if(playerLocation.getBlock().getType().equals(Material.WATER) || 
