@@ -1,8 +1,10 @@
 package net.doobler.doobstat;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
@@ -58,6 +60,20 @@ public final class DooBStat extends JavaPlugin {
 		// rejestracja komend
 		getCommand("dstat").setExecutor(new DooBStatDstatCommand(this));
 		
+		
+		// jeśli gracze są aktywni podczas restartu to znaczy, że był jakiś bug
+		// wywalenie takich graczy
+		Connection conn = this.db.getConn();
+		String sql = "UPDATE " + this.db.getPrefixed("players") + " " +
+				"SET online=0 " +
+				"WHERE online=1";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		
 		// automatyczne czyszczenie graczy których dawno nie było
 		if(this.getConfig().getBoolean("clean.auto")) {
