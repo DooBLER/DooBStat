@@ -28,6 +28,7 @@ public final class DooBStat extends JavaPlugin {
 	public Map<String, DooBStatPlayerData> playerslist = new HashMap<String, DooBStatPlayerData>();
 	
 	public final DooBStatPlayerListener playerListener = new DooBStatPlayerListener(this);
+	public final DooBStatBlockListener blockListener = new DooBStatBlockListener(this);
 	
 	
 	/**
@@ -56,13 +57,14 @@ public final class DooBStat extends JavaPlugin {
 		
 		// rejestracja ewentów
 		pm.registerEvents(this.playerListener, this);
+		pm.registerEvents(this.blockListener, this);
 		
 		// rejestracja komend
 		getCommand("dstat").setExecutor(new DooBStatDstatCommand(this));
 		
 		
 		// jeśli gracze są aktywni podczas restartu to znaczy, że był jakiś bug
-		// wywalenie takich graczy
+		// przełączenie stanu takich graczy w bazie na offline
 		Connection conn = this.db.getConn();
 		String sql = "UPDATE " + this.db.getPrefixed("players") + " " +
 				"SET online=0 " +
