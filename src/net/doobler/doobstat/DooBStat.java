@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import net.doobler.doobstat.commands.DooBStatDstatCommand;
@@ -152,50 +151,7 @@ public final class DooBStat extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		
-		Date curdate = new Date();
-		Timestamp curtimestamp = new Timestamp(curdate.getTime());
-		
-		// zapisanie wszystkich pozostających na serwerze graczy
-		PreparedStatement prest = this.db.getPreparedStatement("updatePlayerQuit");
-		PreparedStatement prest2 = this.db.getPreparedStatement("updatePlayerStatQuit");
-		
-		
-		Iterator<Map.Entry<String, DooBStatPlayerData>> wpisy = this.playerslist.entrySet().iterator();
-		while (wpisy.hasNext()) {
-		    Map.Entry<String, DooBStatPlayerData> wpis = wpisy.next();
-		    try {
-		    	DooBStatPlayerData playerData = wpis.getValue();
-		    	
-				prest.setTimestamp(1, curtimestamp);
-				prest.setInt(2, (int)((curdate.getTime() - playerData.getLoginDate().getTime())/1000));
-				prest.setInt(3, playerData.getPlayerId());
-				prest.addBatch();
-				
-				prest2.setInt(1, (int)playerData.getDist(DooBStatPlayerData.FOOT));
-				prest2.setInt(2, (int)playerData.getDist(DooBStatPlayerData.FLY));
-				prest2.setInt(3, (int)playerData.getDist(DooBStatPlayerData.SWIM));
-				prest2.setInt(4, (int)playerData.getDist(DooBStatPlayerData.PIG));
-				prest2.setInt(5, (int)playerData.getDist(DooBStatPlayerData.CART));
-				prest2.setInt(6, (int)playerData.getDist(DooBStatPlayerData.BOAT));
-				prest2.setInt(7, (int)playerData.getDist(DooBStatPlayerData.HORSE));
-				prest2.setInt(8, playerData.getBedEnter());
-				prest2.setInt(9, playerData.getFish());
-				prest2.setInt(10, playerData.getPlayerId());
-				prest2.addBatch();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		    wpisy.remove();
-		}
-		
-		try {
-			prest.executeBatch();
-			prest.clearBatch();
-			prest2.executeBatch();
-			prest2.clearBatch();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		this.db.savePlayersData(this.playerslist);
 		
 		//getLogger().info("onDisable function");
 	}

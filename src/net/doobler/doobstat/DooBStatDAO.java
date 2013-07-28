@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +52,8 @@ public class DooBStatDAO extends MySQL {
 				this.update3to4();
 			case 4:
 				this.update4to5();
+			case 5:
+				this.update5to6();
 				break;
 		}
 		
@@ -60,7 +63,14 @@ public class DooBStatDAO extends MySQL {
 	}
 
 	
-	
+	/**
+	 * Zwraca prepared statement po nazwie
+	 * 
+	 * Zwraca wcześniej utworzony prepared statement, jeśli nie ma to tworzy.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public PreparedStatement getPreparedStatement(String name) {
 		
 		Connection conn = this.getConn();
@@ -153,7 +163,7 @@ public class DooBStatDAO extends MySQL {
 				"num_secs_loggedon = num_secs_loggedon + ? " +
 				"WHERE id = ?");
         
-     // aktualizuje statystyki gracza przy wychodzeniu z serwera
+        // aktualizuje statystyki gracza przy wychodzeniu z serwera
         this.addStatementSQL("updatePlayerStatQuit",
 				"UPDATE `" + this.getPrefixed("morestats") + "` " +
 				"SET " +
@@ -165,7 +175,9 @@ public class DooBStatDAO extends MySQL {
 				"dist_boat = dist_boat + ?, " +
 				"dist_horse = dist_horse + ?, " +
 				"bed_enter = bed_enter + ?, " +
-				"fish = fish + ? " +
+				"fish = fish + ?, " +
+				"block_place = block_place + ?, " +
+				"block_break = block_break + ? " +
 				"WHERE id = ?");
 	}
 	
@@ -231,7 +243,9 @@ public class DooBStatDAO extends MySQL {
 				"dist_boat = 0, " +
 				"dist_horse = 0, " +
 				"bed_enter = 0, " +
-				"fish = 0";
+				"fish = 0, " +
+				"block_place = 0, " +
+				"block_break = 0";
 		try {
 			prest = conn.prepareStatement(sql);
 			prest.setInt(1, newid);
@@ -349,6 +363,68 @@ public class DooBStatDAO extends MySQL {
 	
 	
 	/**
+	 * Zapisuje zebrane dane gracza
+	 */
+	public void savePlayerData(DooBStatPlayerData playerData) {
+		
+		Map<String, DooBStatPlayerData> tmp = new HashMap<String, DooBStatPlayerData>();
+		tmp.put(playerData.getPlayerName().toLowerCase(), playerData);
+		
+		this.savePlayersData(tmp);
+		
+	}
+	
+	public void savePlayersData(Map<String, DooBStatPlayerData> data_map)
+	{
+		Date curdate = new Date();
+		Timestamp curtimestamp = new Timestamp(curdate.getTime());
+		
+		PreparedStatement prest = this.getPreparedStatement("updatePlayerQuit");
+		PreparedStatement prest2 = this.getPreparedStatement("updatePlayerStatQuit");
+		
+		Iterator<Map.Entry<String, DooBStatPlayerData>> wpisy = data_map.entrySet().iterator();
+		while (wpisy.hasNext()) {
+		    Map.Entry<String, DooBStatPlayerData> wpis = wpisy.next();
+		    try {
+		    	DooBStatPlayerData playerData = wpis.getValue();
+		    	
+				prest.setTimestamp(1, curtimestamp);
+				prest.setInt(2, (int)((curdate.getTime() - playerData.getLoginDate().getTime())/1000));
+				prest.setInt(3, playerData.getPlayerId());
+				prest.addBatch();
+				
+				prest2.setInt(1, (int)playerData.getDist(DooBStatPlayerData.FOOT));
+				prest2.setInt(2, (int)playerData.getDist(DooBStatPlayerData.FLY));
+				prest2.setInt(3, (int)playerData.getDist(DooBStatPlayerData.SWIM));
+				prest2.setInt(4, (int)playerData.getDist(DooBStatPlayerData.PIG));
+				prest2.setInt(5, (int)playerData.getDist(DooBStatPlayerData.CART));
+				prest2.setInt(6, (int)playerData.getDist(DooBStatPlayerData.BOAT));
+				prest2.setInt(7, (int)playerData.getDist(DooBStatPlayerData.HORSE));
+				prest2.setInt(8, playerData.getBedEnter());
+				prest2.setInt(9, playerData.getFish());
+				prest2.setInt(10, playerData.getBlockPlace());
+				prest2.setInt(11, playerData.getBlockBreak());
+				prest2.setInt(12, playerData.getPlayerId());
+				prest2.addBatch();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		    wpisy.remove();
+		}
+		
+		try {
+			prest.executeBatch();
+			prest.clearBatch();
+			prest2.executeBatch();
+			prest2.clearBatch();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	/**
 	 * Tworzy strukturę tabel pluginu
 	 */
 	public void createTables() {
@@ -393,6 +469,8 @@ public class DooBStatDAO extends MySQL {
 				"`dist_horse` int(11) NOT NULL, " +
 				"`bed_enter` int(11) NOT NULL, " +
 				"`fish` int(11) NOT NULL, " +
+				"`block_place` int(11) NOT NULL, " +
+				"`block_break` int(11) NOT NULL, " +
 		
 				"PRIMARY KEY (`id`) " +
 				") ENGINE=MyISAM DEFAULT CHARSET=utf8";
@@ -405,8 +483,7 @@ public class DooBStatDAO extends MySQL {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	
-	
+
 	}
 	
 	/**
@@ -644,21 +721,35 @@ public class DooBStatDAO extends MySQL {
 		}
 		
 		
-//		sql = "UPDATE " + this.getPrefixed("morestats") + " " +
-//				"SET " +
-//				"dist_horse = 0 " +
-//				"WHERE dist_horse = ''";
-//		try {
-//			Statement statement = conn.createStatement();
-//			statement.executeUpdate(sql);
-//			statement.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-		
 		this.plugin.getLogger().info("DB tables updated from v4 to v5.");
 
 		this.plugin.getConfig().set("dbversion", 5);
+		this.plugin.saveConfig();
+	}
+	
+	/**
+	 * Update db from version 5 to 6
+	 * 
+	 */
+	public void update5to6() {
+		Connection conn = this.getConn();
+		
+		String sql = "ALTER TABLE `" + this.getPrefixed("morestats") + "` " +
+				"ADD `block_place` int(11) NOT NULL, " +
+				"ADD `block_break` int(11) NOT NULL " +
+				"AFTER `fish`";
+		try {
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			statement.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		this.plugin.getLogger().info("DB tables updated from v5 to v6.");
+
+		this.plugin.getConfig().set("dbversion", 6);
 		this.plugin.saveConfig();
 	}
 }

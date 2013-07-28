@@ -92,9 +92,6 @@ public class DooBStatPlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		
-		Date curdate = new Date();
-		Timestamp curtimestamp = new Timestamp(curdate.getTime());
-		
 		DooBStatPlayerData playerData = plugin.playerslist.get(event.getPlayer().getName().toLowerCase());
 		
 		// wykonaj tylko jeśli gracz istnieje w tabeli
@@ -102,32 +99,8 @@ public class DooBStatPlayerListener implements Listener {
 			
 			plugin.playerslist.remove(event.getPlayer().getName().toLowerCase());
 	
-			PreparedStatement prest = this.plugin.db.getPreparedStatement("updatePlayerQuit");
-			PreparedStatement prest2 = this.plugin.db.getPreparedStatement("updatePlayerStatQuit");
+			this.plugin.db.savePlayerData(playerData);
 			
-			try {
-				prest.setTimestamp(1, curtimestamp);
-				prest.setInt(2, (int)((curdate.getTime() - playerData.getLoginDate().getTime())/1000));
-				prest.setInt(3, playerData.getPlayerId());
-				prest.executeUpdate();
-				prest.clearParameters();
-				
-				prest2.setInt(1, (int)playerData.getDist(DooBStatPlayerData.FOOT));
-				prest2.setInt(2, (int)playerData.getDist(DooBStatPlayerData.FLY));
-				prest2.setInt(3, (int)playerData.getDist(DooBStatPlayerData.SWIM));
-				prest2.setInt(4, (int)playerData.getDist(DooBStatPlayerData.PIG));
-				prest2.setInt(5, (int)playerData.getDist(DooBStatPlayerData.CART));
-				prest2.setInt(6, (int)playerData.getDist(DooBStatPlayerData.BOAT));
-				prest2.setInt(7, (int)playerData.getDist(DooBStatPlayerData.HORSE));
-				prest2.setInt(8, playerData.getBedEnter());
-				prest2.setInt(9, playerData.getFish());
-				prest2.setInt(10, playerData.getPlayerId());
-				prest2.executeUpdate();
-				prest2.clearParameters();
-				
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 	

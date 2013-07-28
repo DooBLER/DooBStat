@@ -14,6 +14,7 @@ public class DooBStatPlayerData {
 	private int block_break = 0;
 	
 	private double[] dist = new double[7];
+	
 	public static final char FOOT = 0; // 0 - foot
 	public static final char FLY  = 1; // 1 - fly
 	public static final char SWIM = 2; // 2 - swim
