@@ -1,4 +1,7 @@
-package net.doobler.doobstat;
+package net.doobler.doobstat.listeners;
+
+import net.doobler.doobstat.DooBStat;
+import net.doobler.doobstat.DooBStatPlayerData;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -8,11 +11,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 
-public class DooBStatBlockListener implements Listener {
+public class BlockListener implements Listener {
 	
 	public DooBStat plugin;
 	
-	public DooBStatBlockListener(DooBStat plugin) {
+	public BlockListener(DooBStat plugin) {
 	    this.plugin = plugin;
 	}
 	

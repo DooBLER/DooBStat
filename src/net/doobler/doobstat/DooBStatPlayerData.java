@@ -23,7 +23,7 @@ public class DooBStatPlayerData {
 	public static final char BOAT = 5; // 5 - boat
 	public static final char HORSE = 6; // 5 - horse
 	
-	DooBStatPlayerData(int id, String playername, Date thislogin) {
+	public DooBStatPlayerData(int id, String playername, Date thislogin) {
 		this.playerid = id;
 		this.playername = playername;
 		this.logindate = thislogin;

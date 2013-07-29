@@ -1,4 +1,4 @@
-package net.doobler.doobstat;
+package net.doobler.doobstat.listeners;
 
 
 import java.sql.PreparedStatement;
@@ -6,6 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+
+import net.doobler.doobstat.DooBStat;
+import net.doobler.doobstat.DooBStatPlayerData;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,11 +25,11 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 
-public class DooBStatPlayerListener implements Listener {
+public class PlayerListener implements Listener {
 	
 	public DooBStat plugin;
 	
-	public DooBStatPlayerListener(DooBStat plugin) {
+	public PlayerListener(DooBStat plugin) {
 	    this.plugin = plugin;
 	}
 	

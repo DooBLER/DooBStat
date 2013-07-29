@@ -10,7 +10,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import net.doobler.doobstat.commands.DooBStatDstatCommand;
+import net.doobler.doobstat.listeners.BlockListener;
+import net.doobler.doobstat.listeners.PlayerListener;
 import net.doobler.doobstat.updatechecker.UpdateChecker;
 import net.doobler.doobstat.utils.CleanPlayersTask;
 
@@ -26,8 +29,8 @@ public final class DooBStat extends JavaPlugin {
 	// Lista obiektów obecnych na serwerze graczy.
 	public Map<String, DooBStatPlayerData> playerslist = new HashMap<String, DooBStatPlayerData>();
 	
-	public final DooBStatPlayerListener playerListener = new DooBStatPlayerListener(this);
-	public final DooBStatBlockListener blockListener = new DooBStatBlockListener(this);
+	public final PlayerListener playerListener = new PlayerListener(this);
+	public final BlockListener blockListener = new BlockListener(this);
 	
 	
 	/**
