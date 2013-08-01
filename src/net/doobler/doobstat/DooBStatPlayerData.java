@@ -13,6 +13,13 @@ public class DooBStatPlayerData {
 	private int block_place = 0;
 	private int block_break = 0;
 	
+	private int death_count = 0;
+	
+	private int pvp_kills = 0;
+	private int pvp_deaths = 0;
+	private String pvp_killer = "";
+	private String pvp_victim = "";
+	
 	private double[] dist = new double[7];
 	
 	public static final char FOOT = 0; // 0 - foot
@@ -60,6 +67,9 @@ public class DooBStatPlayerData {
 		return this.stat_fish;
 	}
 	
+	/**
+	 * Block Place
+	 */
 	public void addBlockPlace() {
 		this.block_place += 1;
 	}
@@ -67,10 +77,54 @@ public class DooBStatPlayerData {
 		return this.block_place;
 	}
 	
+	/**
+	 * Block Break
+	 */
 	public void addBlockBreak() {
 		this.block_break += 1;
 	}
 	public int getBlockBreak() {
 		return this.block_break;
 	}
+	
+	/**
+	 * Death count
+	 */
+	public void addDeath() {
+		this.death_count += 1;
+	}
+	public int getDeath() {
+		return this.death_count;
+	}
+	
+	/**
+	 * PVP Kill
+	 */
+	public void addPvpKill(String victim) {
+		this.pvp_kills += 1;
+		this.pvp_victim = victim;
+	}
+	public int getPvpKill() {
+		return this.pvp_kills;
+	}
+	public String getPvpVictim() {
+		return this.pvp_victim;
+	}
+	
+	/**
+	 * PVP Death
+	 */
+	public void addPvpDeath(String killer) {
+		this.pvp_deaths += 1;
+		this.pvp_killer = killer;
+	}
+	public int getPvpDeath() {
+		return this.pvp_deaths;
+	}
+	public String getPvpKiller() {
+		return this.pvp_killer;
+	}
+	
+	
+	
 }

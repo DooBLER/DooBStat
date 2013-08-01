@@ -177,7 +177,12 @@ public class DooBStatDAO extends MySQL {
 				"bed_enter = bed_enter + ?, " +
 				"fish = fish + ?, " +
 				"block_place = block_place + ?, " +
-				"block_break = block_break + ? " +
+				"block_break = block_break + ?, " +
+				"death_count = death_count + ?, " +
+				"pvp_deaths = pvp_deaths + ?, " +
+				"pvp_killer = ?, " +
+				"pvp_kills = pvp_kills + ?, " +
+				"pvp_victim = ? " +
 				"WHERE id = ?");
 	}
 	
@@ -245,7 +250,12 @@ public class DooBStatDAO extends MySQL {
 				"bed_enter = 0, " +
 				"fish = 0, " +
 				"block_place = 0, " +
-				"block_break = 0";
+				"block_break = 0, " +
+				"death_count = 0, " +
+				"pvp_deaths = 0, " +
+				"pvp_killer = '', " +
+				"pvp_kills = 0, " +
+				"pvp_victim = ''";		
 		try {
 			prest = conn.prepareStatement(sql);
 			prest.setInt(1, newid);
@@ -404,7 +414,12 @@ public class DooBStatDAO extends MySQL {
 				prest2.setInt(9, playerData.getFish());
 				prest2.setInt(10, playerData.getBlockPlace());
 				prest2.setInt(11, playerData.getBlockBreak());
-				prest2.setInt(12, playerData.getPlayerId());
+				prest2.setInt(12, playerData.getDeath());
+				prest2.setInt(13, playerData.getPvpDeath());
+				prest2.setString(14, playerData.getPvpKiller());
+				prest2.setInt(15, playerData.getPvpKill());
+				prest2.setString(16, playerData.getPvpVictim());
+				prest2.setInt(17, playerData.getPlayerId());
 				prest2.addBatch();
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -471,7 +486,11 @@ public class DooBStatDAO extends MySQL {
 				"`fish` int(11) NOT NULL, " +
 				"`block_place` int(11) NOT NULL, " +
 				"`block_break` int(11) NOT NULL, " +
-		
+				"`death_count` int(11) NOT NULL, " +
+				"`pvp_deaths` int(11) NOT NULL, " +
+				"`pvp_killer` varchar(16) NOT NULL, " +
+				"`pvp_kills` int(11) NOT NULL, " +
+				"`pvp_victim` varchar(16) NOT NULL, " +
 				"PRIMARY KEY (`id`) " +
 				") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 		
@@ -736,7 +755,12 @@ public class DooBStatDAO extends MySQL {
 		
 		String sql = "ALTER TABLE `" + this.getPrefixed("morestats") + "` " +
 				"ADD `block_place` int(11) NOT NULL, " +
-				"ADD `block_break` int(11) NOT NULL " +
+				"ADD `block_break` int(11) NOT NULL, " +
+				"ADD `death_count` int(11) NOT NULL, " +
+				"ADD `pvp_deaths` int(11) NOT NULL, " +
+				"ADD `pvp_killer` varchar(16) NOT NULL, " +
+				"ADD `pvp_kills` int(11) NOT NULL, " +
+				"ADD `pvp_victim` varchar(16) NOT NULL " +
 				"AFTER `fish`";
 		try {
 			Statement statement = conn.createStatement();

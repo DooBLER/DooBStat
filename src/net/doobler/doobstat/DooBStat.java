@@ -13,6 +13,7 @@ import java.util.Map;
 
 import net.doobler.doobstat.commands.DooBStatDstatCommand;
 import net.doobler.doobstat.listeners.BlockListener;
+import net.doobler.doobstat.listeners.EntityListener;
 import net.doobler.doobstat.listeners.PlayerListener;
 import net.doobler.doobstat.updatechecker.UpdateChecker;
 import net.doobler.doobstat.utils.CleanPlayersTask;
@@ -29,9 +30,9 @@ public final class DooBStat extends JavaPlugin {
 	// Lista obiektów obecnych na serwerze graczy.
 	public Map<String, DooBStatPlayerData> playerslist = new HashMap<String, DooBStatPlayerData>();
 	
-	public final PlayerListener playerListener = new PlayerListener(this);
 	public final BlockListener blockListener = new BlockListener(this);
-	
+	public final EntityListener entityListener = new EntityListener(this);
+	public final PlayerListener playerListener = new PlayerListener(this);
 	
 	/**
 	 * onEnable
@@ -58,8 +59,9 @@ public final class DooBStat extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		
 		// rejestracja ewentów
-		pm.registerEvents(this.playerListener, this);
 		pm.registerEvents(this.blockListener, this);
+		pm.registerEvents(this.entityListener, this);
+		pm.registerEvents(this.playerListener, this);
 		
 		// rejestracja komend
 		getCommand("dstat").setExecutor(new DooBStatDstatCommand(this));
