@@ -139,6 +139,29 @@ function player_view($player_name)
 </div>
 
 <div class="infobox">
+<h2>Blocks:</h2>
+<ul>
+    <li>Number of placed blocks: <strong><?php echo $row['block_place']; ?></strong></li>
+    <li>Number of destroyed blocks: <strong><?php echo $row['block_break']; ?></strong></li>
+</ul>
+</div>
+
+<div class="infobox">
+<h2>Deaths/Kills:</h2>
+<ul>
+    <li>Number of death: <strong><?php echo $row['death_count']; ?></strong></li>
+</ul>
+<ul>
+    <li>Number of death in PVP: <strong><?php echo $row['pvp_deaths']; ?></strong></li>
+    <li>Name of last killer: <strong><?php echo $row['pvp_killer']; ?></strong></li>
+</ul>
+<ul>
+    <li>Number of kills in PVP: <strong><?php echo $row['pvp_kills']; ?></strong></li>
+    <li>Name of last victim: <strong><?php echo $row['pvp_victim']; ?></strong></li>
+</ul>
+</div>
+
+<div class="infobox">
 <h2>Other:</h2>
 <ul>
     <li>Number of logins: <strong><?php echo $row['num_logins']; ?></strong></li>

@@ -22,18 +22,24 @@
 
 ### [prefix]morestats
 
-| Column     | Type             | Description
-| ---------- | ---------------- | -----------
-| id         | int(11); PRIMARY | Player ID
-| dist_foot  | int(11) | Distance traveled by foot (in meters/blocks)
-| dist_fly   | int(11) | Distance traveled when flying (in meters/blocks)
-| dist_swim  | int(11) | Distance traveled when swimming (in meters/blocks)
-| dist_pig   | int(11) | Distance traveled on pig (in meters/blocks)
-| dist_cart  | int(11) | Distance traveled on minecart (in meters/blocks)
-| dist_boat  | int(11) | Distance traveled on boat (in meters/blocks)
-| dist_horse | int(11) | Distance traveled on horse (in meters/blocks)
-| bed_enter  | int(11) | Number of beds used
-| fish       | int(11) | Number of fish caught
-
+| Column      | Type             | Description
+| ----------- | ---------------- | -----------
+| id          | int(11); PRIMARY | Player ID
+| dist_foot   | int(11) | Distance traveled by foot (in meters/blocks)
+| dist_fly    | int(11) | Distance traveled when flying (in meters/blocks)
+| dist_swim   | int(11) | Distance traveled when swimming (in meters/blocks)
+| dist_pig    | int(11) | Distance traveled on pig (in meters/blocks)
+| dist_cart   | int(11) | Distance traveled on minecart (in meters/blocks)
+| dist_boat   | int(11) | Distance traveled on boat (in meters/blocks)
+| dist_horse  | int(11) | Distance traveled on horse (in meters/blocks)
+| bed_enter   | int(11) | Number of beds used
+| fish        | int(11) | Number of fish caught
+| block_place | int(11) | Number of placed blocks 
+| block_break | int(11) | Number of destroyed blocks
+| death_count | int(11) | Number of death
+| pvp_deaths  | int(11) | Number of death in PVP
+| pvp_killer  | varchar(16) | Name of last killer
+| pvp_kills   | int(11) | Number of kills in PVP
+| pvp_victim  | varchar(16) | Name of last victim
 
 
